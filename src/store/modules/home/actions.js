@@ -4,15 +4,15 @@ const actions = {
 
     getInitialUsers({ commit }, params) {
         return axios.get(params).then((response) => {
-            console.log(response.data);
             commit('SET_PROFILE', response.data.items)
         });
     },
 
     getNextUsers({ commit }, params) {
         return axios.get(params).then((response) => {
-            console.log(response.data);
-            commit('SET_PROFILE', response.data.items)
+            if (response.data.items) {
+                commit('SET_NEXT_PROFILE', response.data.items)
+            }
         });
     }  
 }

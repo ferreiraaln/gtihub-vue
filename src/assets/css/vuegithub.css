@@ -1,0 +1,15 @@
+body {
+  padding-top: 56px;
+  background-color: #fbfbfb;
+}
+.btn-full {
+  width: 100%;
+}
+
+.bg-vue {
+  background: #b63132;
+}
+
+.container-body {
+  margin-top: 10%;
+}

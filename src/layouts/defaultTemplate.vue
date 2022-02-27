@@ -11,6 +11,6 @@ export default {};
 </script>
 
 <style scoped>
-@import url("../assets/css/vuebank.css");
+@import url("../assets/css/vuegithub.css");
 @import url("../assets/css/reset.css");
 </style>
