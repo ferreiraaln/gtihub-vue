@@ -5,9 +5,11 @@
     <div class="container container-body">
       <div class="row">
         <div class="col-12">
-          <form class="form-inline">
+          <h3>Filtros</h3>
+          <form class="form-inline form-card">
             <div class="form-group mx-sm-3 mb-2">
               <input
+                v-model="username"
                 type="text"
                 class="form-control"
                 id=""
@@ -15,40 +17,27 @@
               />
             </div>
             <div class="form-group mx-sm-3 mb-2">
-              <select class="form-control">
-                <option>QTD de repositório</option>
-                <option>maior ou igual a 10</option>
-                <option>maior ou igual a 20</option>
-                <option>maior ou igual a 50</option>
+              <select class="form-control" v-model="repos">
+                <option value="0">QTD de repositório</option>
+                <option value="10">maior ou igual a 10</option>
+                <option value="20">maior ou igual a 20</option>
+                <option value="50">maior ou igual a 50</option>
               </select>
             </div>
             <div class="form-group mx-sm-3 mb-2">
-              <select class="form-control">
-                <option>QTD de seguidores</option>
-                <option>maior ou igual a 10</option>
-                <option>maior ou igual a 20</option>
-                <option>maior ou igual a 50</option>
+              <select class="form-control" v-model="followers">
+                <option value="0">QTD de seguidores</option>
+                <option value="10">maior ou igual a 10</option>
+                <option value="20">maior ou igual a 20</option>
+                <option value="50">maior ou igual a 50</option>
               </select>
             </div>
-            <button type="submit" class="btn btn-primary mb-2">
+            <button @click="search" class="btn btn-primary mb-2">
               Pesquisar
             </button>
           </form>
         </div>
-        <div class="col-4" v-for="profile in profiles" :key="profile.id">
-          <div class="card" style="margin-top: 50px; margin-bottom: 20px">
-            <img :src="profile.avatar_url" class="card-img-top" alt="..." />
-            <div class="card-body">
-              <h5 class="card-title">{{ profile.login }}</h5>
-              <a
-                :href="profile.html_url"
-                target="_blank"
-                class="btn btn-primary"
-                >Ver perfil</a
-              >
-            </div>
-          </div>
-        </div>
+        <Profile :profiles="profiles"></Profile>
       </div>
       <!-- /.row -->
     </div>
@@ -61,44 +50,67 @@
 import { mapState, mapActions } from "vuex";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import Profile from "@/components/Profile";
 
 export default {
   components: {
     Header,
     Footer,
+    Profile,
   },
   computed: {
     ...mapState({
       profiles: (state) => state.home.profile,
     }),
   },
-
+  mounted() {
+    this.getNextUser();
+  },
   data() {
     return {
       listProfile: {},
       page: 1,
       queryString: "",
       paginate: "",
+      username: null,
+      repos: 0,
+      followers: 0,
     };
-  },
-  beforeMount() {
-    this.getInitialUsers();
-  },
-  created() {},
-  mounted() {
-    this.getNextUser();
   },
   methods: {
     ...mapActions({
       add: "getInitialUsers",
       addNext: "getNextUsers",
     }),
+    search(event) {
+      event.preventDefault();
+
+      this.queryString = "users";
+      let qs = "?q=";
+
+      if (this.username == null && this.repos === 0 && this.followers === 0) {
+        //qs = "";
+        console.log("nenhum registro");
+      } else {
+        if (this.username) {
+          qs += `${this.username} in:login`;
+        }
+
+        if (this.repos > 0) {
+          qs += `+repos:>=${this.repos}`;
+        }
+
+        if (this.followers > 0) {
+          qs += `+followers:>=${this.repos}`;
+        }
+        this.paginate = `&per_page=20&page=${this.page}`;
+
+        this.queryString += qs;
+        this.getInitialUsers();
+      }
+    },
     getInitialUsers() {
-      //let queryString = `users?q=tom&per_page=20&page=${this.page}`;
-      this.queryString = `users?q=bruno in:login`;
-      this.paginate = `&per_page=20&page=${this.page}`;
       this.add(this.queryString + this.paginate);
-      //this.$store.dispatch("getInitialUsers", this.queryString + this.paginate);
       //"q=" + encodeURIComponent("tom+repos:%3E42+followers:%3E1000");
     },
     getNextUser() {
@@ -109,7 +121,7 @@ export default {
         if (bottomOfWindow) {
           this.page += 1;
           if (this.page <= 10) {
-            this.paginate = `&per_page=21&page=${this.page}`;
+            this.paginate = `&per_page=20&page=${this.page}`;
             this.debounce();
           }
         }
@@ -123,7 +135,6 @@ export default {
 
       timeout = setTimeout(() => {
         this.addNext(this.queryString + this.paginate);
-        //this.$store.dispatch("getNextUsers", this.queryString + this.paginate);
       }, 100);
     },
   },

@@ -13,3 +13,9 @@ body {
 .container-body {
   margin-top: 10%;
 }
+
+.form-card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+}
